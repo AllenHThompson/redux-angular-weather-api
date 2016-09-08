@@ -1,0 +1,11 @@
+ <div id="map" class="map"></div>
+<div class="sidebar">
+  <div
+    ng-repeat="result in results"
+    ng-click="openInfoWindow(result)"
+    >
+    {{result.name}}
+    {{result.main.temp}}°
+    <img ng-src="http://openweathermap.org/img/w/{{result.weather[0].icon}}.png">
+  </div>
+</div>
