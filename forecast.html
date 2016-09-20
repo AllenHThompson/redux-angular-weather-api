@@ -1,11 +1,12 @@
 <div id="map" class="map"></div>
 <div class="sidebar">
-     <div
-     ng-repeat="result in results"
-     ng-click="openInfoWindow(result)"
-     >
-     {{result.name}}
-     {{result.main.temp}}°
-     <img ng-src="http://openweathermap.org/img/w/{{result.weather[0].icon}}.png">
-</div>
+     <h1>Forecast Page</h1>
+     <a href="#/">back home</a>
+     <table style="width: 100%">
+          <tr ng-repeat="result in results">
+               <td>{{result.dt * 1000 | date: 'MM-dd hh:mm'}}</td>
+               <td>{{result.main.temp}}°</td>
+               <td><img ng-src="http://openweathermap.org/img/w/{{result.weather[0].icon}}.png"></td>
+          </tr>
+     </table>
 </div>

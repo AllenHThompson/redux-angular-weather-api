@@ -21,59 +21,68 @@ var cityIds = [
 ];
 var app = angular.module('my-app', ['ngRoute']);
 
-
 app.config(function($routeProvider) {
      $routeProvider
      .when('/', {
-          templateUrl: 'overview.html',
-          controller: 'MainController'
+          controller: 'WeatherMapController',
+          templateUrl: 'overview.html'
      })
      .when('/city/:cityId', {
-          templateUrl: 'forecast.html',
-          controller: 'ForecastController'
+          controller: 'ForecastController',
+          templateUrl: 'forecast.html'
      });
+});
 
+app.controller('ForecastController', function($scope, googleMap, $routeParams, weatherService) {
+     var cityId = $routeParams.cityId;
+     weatherService.getForecastForCity(cityId, function(weatherMapData){
+
+          var results = weatherMapData.list;
+          $scope.results = results;
+          // var map = googleMap.newMap(39.99727, -94.578567, 10);
+          // googleMap.plotData(results, map);
+     });
 });
 
 app.factory('weatherService', function($http){
+     var someMethod = function(cityIds, callback) {
+          $http({
+               url: 'http://api.openweathermap.org/data/2.5/group',
+               params: {
+                    id: cityIds.join(','),
+                    units: 'imperial',
+                    APPID: APPID
+               }
+          }).success(function(data) {
+               callback(data);
+          });
+     };
+     var someOtherMethod = function(cityId, callback) {
+          $http({
+               url: 'http://api.openweathermap.org/data/2.5/forecast',
+               params: {
+                    id: cityId,
+                    units: 'imperial',
+                    APPID: APPID
+               }
+          }).success(callback);
+     };
+     var APPID = 'e9348133b64a0819b26b734ad2ec4a19';
      return {
-          getCitybyId: function(cityId, callback){
-               $http({
-                    method: 'GET',
-                    url: 'http://api.openweathermap.org/data/2.5/forecast?',
-                    params: {
-                         APPID: '5f36dcc22210b91f4b0c921b058a87f8',
-                         // units: 'imperial',
-                         id: cityId
-                    }
-               }).success(function(weatherMapData){
-                    callback(weatherMapData);
-               });
-          },
-          getCityWeather: function(cityIds, callback) {
-               $http({
-                    method: 'GET',
-                    url: 'http://api.openweathermap.org/data/2.5/group?',
-                    params: {
-                         APPID: '5f36dcc22210b91f4b0c921b058a87f8',
-                         units: 'imperial',
-                         id: cityIds.join(",")
-                    }
-               }).success(function(weatherMapData){
-                    callback(weatherMapData);
-               });
-          }
+          getWeatherByCityIds: someMethod,
+          getForecastForCity: someOtherMethod
      };
 });
 //put google map code
 
-app.factory('googleMap', function(){
+app.factory('googleMap', function() {
      return {
           newMap: function(lat, long, zoom) {
-               var map = new google.maps.Map(document.getElementById('map'), {
+               var mapOptions = {
                     center: {lat: lat, lng: long},
                     zoom: zoom
-               });
+               };
+               var map = new google.maps.Map(document.getElementById('map'), mapOptions);
                return map;
           },
           openInfoWindow: function(results, map) {
@@ -122,26 +131,20 @@ app.factory('googleMap', function(){
           }
      };
 });
-// var infoWindows = [];
-var markerDictionary = {};
-app.controller('MainController', function($scope, $http, weatherService, googleMap){
 
-     weatherService.getCityWeather(cityIds,function(weatherMapData){
-          console.log(weatherMapData);
+var infoWindows = [];
+var markerDictionary = {};
+
+app.controller('WeatherMapController', function($scope, $http, weatherService, googleMap){
+
+     $scope.openInfoWindow = function(result) {
+          googleMap.openInfoWindow(result);
+     };
+
+     weatherService.getWeatherByCityIds(cityIds, function(weatherMapData){
           var results = weatherMapData.list;
           $scope.results = results;
           var map = googleMap.newMap(39.99727, -94.578567, 4);
-          googleMap.plotData(results, map);
-     });
-});
-
-app.controller('ForecastController', function($scope, $http, $routeParams, weatherService, googleMap){
-
-     weatherService.getCitybyId($routeParams.cityId,function(weatherMapData){
-          console.log(weatherMapData);
-          var results = weatherMapData.list;
-          $scope.results = results;
-          var map = googleMap.newMap(39.99727, -94.578567, 10);
           googleMap.plotData(results, map);
      });
 });
