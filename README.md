@@ -7,7 +7,10 @@ Use AngularJS Factory Service to refactor Weather API and Google Maps API.
 
 ## API's Used
 * Google Maps Developer API
-* Open Weather Map
+* Open Weather Map API
+
+## Setting Up Environment
+* Serve on local host from terminal.
 
 ## Authors
 * **Allen H. Thompson**
