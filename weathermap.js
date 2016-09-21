@@ -100,11 +100,47 @@ app.factory('googleMap', function() {
                var marker = markerDictionary[results.id];
                infoWindow.setContent(contentString);
                infoWindow.open(map, marker);
-               marke.addListener('click', function() {
+               marker.addListener('click', function() {
                  infoWindow.close();
                });
                console.log(infoWindow)
           },
+
+          addMarker: function(result, map) {
+            var image = {
+              url: "http://openweathermap.org/img/w/" + result.weather[0].icon + ".png",
+              size: new google.maps.Size(50, 50),
+              origin: new google.maps.Point(0, 0),
+              anchor: new google.maps.Point(25, 25)
+            };
+            var marker = new google.maps.Marker({
+              position: { lat: result.coord.lat, lng: result.coord.lon },
+              map: map,
+              icon: image,
+              anchorPoint: new google.maps.Point(0,-8)
+            });
+            var contentString = "<h4>" + result.name + "</h4>" + "Current Temp: " + result.main.temp + "<br>High Of: " + result.main.temp_max + "°F<br>Low Of: " + result.main.temp_min + "°F<br>Pressure: " + result.main.pressure + "<br>Humidity: " + result.main.humidity + "%<br>Wind Speed: " + result.wind.speed;
+            var infoWindow = new google.maps.InfoWindow({
+              content: contentString
+            });
+            //push infoWindow in to array
+            infoWindows.push(infoWindow);
+            function hideAllInfoWindows() {
+              //goes through each infoWindow in the infoWindows array
+              infoWindows.forEach(function(infoWindow) {
+                infoWindow.close();
+              });
+            }
+            marker.addListener('click', function() {
+              hideAllInfoWindows();
+              infoWindow.open(map, marker);
+            });
+            result.openInfoWindow = function(){
+              hideAllInfoWindows();
+              infoWindow.open(map, marker);
+            };
+          },
+
           plotData: function(results, map) {
                var service = this;
                var weatherData = results.map(function(results){
